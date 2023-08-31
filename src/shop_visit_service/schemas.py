@@ -1,5 +1,6 @@
 from typing import List
 from enum import Enum
+import datetime
 from pydantic import BaseModel
 
 
@@ -14,8 +15,10 @@ class OrderStatus(str, Enum):
 class TradePointBase(BaseModel):
     name: str
 
+
 class TradePointCreate(TradePointBase):
     pass
+
 
 class TradePoint(TradePointBase):
     id: int
@@ -23,13 +26,16 @@ class TradePoint(TradePointBase):
     class Config:
         orm_mode = True
 
+
 class WorkerBase(BaseModel):
     name: str
     phone_number: str
     trade_point_id: int
 
+
 class WorkerCreate(WorkerBase):
     pass
+
 
 class Worker(WorkerBase):
     id: int
@@ -37,13 +43,16 @@ class Worker(WorkerBase):
     class Config:
         orm_mode = True
 
+
 class CustomerBase(BaseModel):
     name: str
     phone_number: str
     trade_point_id: int
 
+
 class CustomerCreate(CustomerBase):
     pass
+
 
 class Customer(CustomerBase):
     id: int
@@ -51,11 +60,13 @@ class Customer(CustomerBase):
     class Config:
         orm_mode = True
 
+
 class OrderBase(BaseModel):
     where_id: int
     author_id: int
     status: OrderStatus
     executor_id: int
+
 
 class OrderCreate(OrderBase):
     pass
