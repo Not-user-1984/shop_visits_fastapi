@@ -2,7 +2,7 @@ import os
 import sys
 
 sys.path.append(os.path.join(sys.path[0], 'src'))
-from dataclasses import Base, get_async_session
+from db.database import Base, get_async_session
 from logging.config import fileConfig
 
 from alembic import context

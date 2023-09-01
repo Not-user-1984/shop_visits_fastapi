@@ -1,6 +1,7 @@
-from typing import List
-from enum import Enum
 import datetime
+from enum import Enum
+from typing import List
+
 from pydantic import BaseModel
 
 
@@ -25,6 +26,10 @@ class TradePoint(TradePointBase):
 
     class Config:
         orm_mode = True
+
+
+class TradePointUpdate(TradePointBase):
+    name: str
 
 
 class WorkerBase(BaseModel):
@@ -95,7 +100,6 @@ class VisitCreate(VisitBase):
 class Visit(VisitBase):
     id: int
     created_at: datetime.datetime
-
 
     class Config:
         orm_mode = True

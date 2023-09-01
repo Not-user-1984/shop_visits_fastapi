@@ -1,9 +1,9 @@
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, DateTime, Enum
-from sqlalchemy.orm import relationship, backref
-from sqlalchemy.ext.declarative import declarative_base
-from enum import Enum as PyEnum
-from sqlalchemy.orm import sessionmaker
 import datetime
+from enum import Enum as PyEnum
+
+from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, String
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
 
 Base = declarative_base()
 
