@@ -1,6 +1,5 @@
 import datetime
 from enum import Enum as PyEnum
-
 from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
@@ -17,35 +16,29 @@ class OrderStatus(PyEnum):
     canceled = 'canceled'
 
 
+class RoleEnum(PyEnum):
+    worker = "Worker"
+    customer = "Customer"
+
+
 class TradePoint(Base):
     __tablename__ = 'trade_points'
 
     id = Column(Integer, primary_key=True)
     name = Column(String(255), nullable=False)
-    workers = relationship("Worker", backref="trade_point", lazy=True)
-    customers = relationship("Customer", backref="trade_point", lazy=True)
+    users = relationship("User", backref="trade_point", lazy=True)
 
 
-class Worker(Base):
-    __tablename__ = 'workers'
-
+class User(Base):
+    __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
     name = Column(String(255), nullable=False)
     phone_number = Column(String(255), nullable=False)
-    trade_point_id = Column(
-        Integer, ForeignKey('trade_points.id'),
-        nullable=False)
-    visits = relationship("Visit", backref="executor", lazy=True)
+    role = Column(Enum('Worker',
+                       'Customer',
+                       name='user_roles'), nullable=False)
 
-
-class Customer(Base):
-    __tablename__ = 'customers'
-
-    id = Column(Integer, primary_key=True)
-    name = Column(String(255), nullable=False)
-    phone_number = Column(String(255), nullable=False)
-    trade_point_id = Column(
-        Integer, ForeignKey('trade_points.id'), nullable=False)
+    # Добавьте другие связи, например, с таблицами Order, Visit и т. д.
     orders = relationship("Order", backref="author", lazy=True)
     visits = relationship("Visit", backref="author", lazy=True)
 

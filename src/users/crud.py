@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-from db.models import Worker, Customer, Visit
+from db.models import User, Visit
 from . import schemas
 
 

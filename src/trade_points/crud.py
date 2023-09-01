@@ -1,21 +1,21 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-from db.models import TradePoint, Order, Worker
+from db.models import TradePoint, Order, User
 from . import schemas
 
 
 # Получить список торговых точек, привязанных к номеру телефона работника
-async def get_trade_points_by_worker_phone(
-        db: Session, phone_number: str
-        ):
-    worker = await db.execute(
-        select(Worker).where(Worker.phone_number == phone_number)
-    )
-    worker = worker.scalar_one_or_none()
-    if not worker:
-        return []
-    trade_points = worker.trade_points
-    return trade_points
+# async def get_trade_points_by_worker_phone(
+#         db: Session, phone_number: str
+#         ):
+#     worker = await db.execute(
+#         select(Worker).where(Worker.phone_number == phone_number)
+#     )
+#     worker = worker.scalar_one_or_none()
+#     if not worker:
+#         return []
+#     trade_points = worker.trade_points
+#     return trade_points
 
 
 # Получить торговую точку по ID

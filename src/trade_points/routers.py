@@ -8,7 +8,6 @@ from .crud import (
     update_trade_point,
     delete_trade_point,
     update_order_status,
-    get_trade_points_by_worker_phone
 )
 from . import schemas
 
