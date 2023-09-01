@@ -59,8 +59,6 @@ class Visit(VisitBase):
 class TradePointBase(BaseModel):
     name: str
 
-
-
 class TradePointCreate(TradePointBase):
     pass
 

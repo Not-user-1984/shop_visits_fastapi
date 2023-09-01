@@ -73,19 +73,6 @@ async def update_trade_point_endpoint(
     return trade_point
 
 
-# Обновить статус заказа
-@router.put("/orders/{order_id}/status", response_model=schemas.Order)
-async def update_order_status_endpoint(
-    order_id: int,
-    new_status: str,
-    db: Session = Depends(get_async_session)
-):
-    order = await update_order_status(db, order_id, new_status)
-    if not order:
-        raise HTTPException(status_code=404, detail="Order not found")
-    return order
-
-
 # Удалить торговую точку
 @router.delete("/trade_points/{trade_point_id}",
                response_model=schemas.TradePoint)

@@ -7,7 +7,7 @@ from .crud import (
     get_orders,
 )
 from . import schemas
-
+from db.models import OrderStatus
 router = APIRouter()
 
 
@@ -21,23 +21,23 @@ async def create_order_endpoint(
     return order
 
 
-@router.get("/orders/", response_model=list[schemas.Order])
+@router.get("/orders/", response_model=list[schemas.OrderGetBase])
 async def get_orders_endpoint(
     db: Session = Depends(get_async_session)
 ):
     orders = await get_orders(db)
-    return orders
+    order_objects = [order[0] for order in orders]
+    return order_objects
 
 
 @router.put("/orders/{order_id}/status",
-            response_model=schemas.Order)
+            response_model=schemas.OrderGetBase)
 async def update_order_status_endpoint(
     order_id: int,
-    new_status: str,
+    new_status: OrderStatus,
     db: Session = Depends(get_async_session)
 ):
     order = await update_order_status(db, order_id, new_status)
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     return order
-

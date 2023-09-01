@@ -36,7 +36,7 @@ async def _get_order(db: Session, order_id: int):
 async def update_order_status(db: Session, order_id: int, new_status: str):
     db_order = await _get_order(db, order_id)
     if db_order:
-        db_order.status = new_status
+        db_order.status = str(new_status)
         await db.commit()
         await db.refresh(db_order)
     return db_order

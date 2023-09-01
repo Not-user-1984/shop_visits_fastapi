@@ -1,7 +1,7 @@
-
+from typing import Optional
 from enum import Enum
 import datetime
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class OrderStatus(str, Enum):
@@ -12,21 +12,30 @@ class OrderStatus(str, Enum):
     canceled = 'canceled'
 
 
-class OrderBase(BaseModel):
+class OrderGetBase(BaseModel):
+    id: int
     where_id: int
     author_id: int
-    status: OrderStatus
+    status: Enum
     executor_id: int
+    created_at: datetime.datetime
 
 
-class OrderCreate(OrderBase):
+class OrderCreate(OrderGetBase):
     pass
 
 
-class Order(OrderBase):
+class Order(BaseModel):
     id: int
     created_at: datetime.datetime
-    ended_at: datetime.datetime
 
     class Config:
         orm_mode = True
+
+    @property
+    def status_str(self):
+        return self.status.value
+
+class OrderPut(BaseModel):
+    id: int
+    status: Optional[OrderStatus]
