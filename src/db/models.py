@@ -7,7 +7,6 @@ from sqlalchemy.orm import relationship
 Base = declarative_base()
 
 
-# Энумерация для статусов заказа
 class OrderStatus(PyEnum):
     started = 'started'
     ended = 'ended'
@@ -16,31 +15,44 @@ class OrderStatus(PyEnum):
     canceled = 'canceled'
 
 
-class RoleEnum(PyEnum):
-    worker = "Worker"
-    customer = "Customer"
-
-
 class TradePoint(Base):
     __tablename__ = 'trade_points'
 
     id = Column(Integer, primary_key=True)
     name = Column(String(255), nullable=False)
-    users = relationship("User", backref="trade_point", lazy=True)
 
 
-class User(Base):
-    __tablename__ = 'users'
+class Admin(Base):
+    __tablename__ = 'admins'
+
+    id = Column(Integer, primary_key=True)
+    username = Column(String(255), nullable=False, unique=True)
+    password_hash = Column(String(255), nullable=False)
+
+
+class Worker(Base):
+    __tablename__ = 'workers'
+
     id = Column(Integer, primary_key=True)
     name = Column(String(255), nullable=False)
     phone_number = Column(String(255), nullable=False)
-    role = Column(Enum('Worker',
-                       'Customer',
-                       name='user_roles'), nullable=False)
-
-    # Добавьте другие связи, например, с таблицами Order, Visit и т. д.
+    trade_point_id = Column(
+        Integer, ForeignKey('trade_points.id'), nullable=False)
+    visits = relationship("Visit", backref="executor", lazy=True)
     orders = relationship("Order", backref="author", lazy=True)
-    visits = relationship("Visit", backref="author", lazy=True)
+
+
+class Customer(Base):
+    __tablename__ = 'customers'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(255), nullable=False)
+    phone_number = Column(String(255), nullable=False)
+    trade_point_id = Column(
+        Integer, ForeignKey('trade_points.id'),
+        nullable=False)
+    customer_orders = relationship("Order", backref="customer", lazy=True)
+    visits = relationship("Visit", backref="customer", lazy=True)
 
 
 class Order(Base):

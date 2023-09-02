@@ -1,7 +1,7 @@
 from typing import Optional
 from enum import Enum
 import datetime
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class OrderStatus(str, Enum):
@@ -35,6 +35,7 @@ class Order(BaseModel):
     @property
     def status_str(self):
         return self.status.value
+
 
 class OrderPut(BaseModel):
     id: int

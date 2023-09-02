@@ -14,17 +14,6 @@ from . import schemas
 router = APIRouter()
 
 
-# Получить список торговых точек по номеру телефона работника
-@router.get("/trade_points_by_worker/{phone_number}",
-            response_model=list[schemas.TradePoint])
-async def get_trade_points_by_worker_phone_endpoint(
-    phone_number: str,
-    db: Session = Depends(get_async_session)
-):
-    trade_points = await get_trade_points_by_worker_phone(db, phone_number)
-    return trade_points
-
-
 # Создать торговую точку
 @router.post("/trade_points/", response_model=schemas.TradePoint)
 async def create_trade_point_endpoint(
