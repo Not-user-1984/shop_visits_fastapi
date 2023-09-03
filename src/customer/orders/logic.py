@@ -1,15 +1,23 @@
 from typing import List
 from sqlalchemy.orm import Session
 from sqlalchemy.future import select
-from db.models import Order, Customer, TradePoint
-from fastapi import HTTPException
+from customer.orders import validation
+from db.models import Order, Customer
+
 
 # Функция для создания заказа клиентом
-async def create_order(db: Session, customer_id: int, order_data: dict) -> Order:
+async def create_order(
+        db: Session,
+        customer_id: int,
+        order_data: dict) -> Order:
     # Проверяем, существует ли клиент с заданным customer_id
     customer = await get_customer(db, customer_id)
     if not customer:
         raise ValueError("Customer not found")
+
+    # Проверяем существование заказа с такими же данными
+    if await validation.order_exists(db, order_data):
+        raise ValueError("Order with the same data already exists")
 
     # Создаем новый заказ и связываем его с клиентом
     order = Order(**order_data, author=customer)
@@ -18,9 +26,11 @@ async def create_order(db: Session, customer_id: int, order_data: dict) -> Order
     await db.refresh(order)
     return order
 
-
 # Функция для удаления заказа клиентом
-async def delete_order(db: Session, customer_id: int, order_id: int) -> bool:
+async def delete_order(
+        db: Session,
+        customer_id: int,
+        order_id: int) -> bool:
     # Проверяем, существует ли клиент с заданным customer_id
     customer = await get_customer(db, customer_id)
     if not customer:
@@ -62,32 +72,3 @@ async def get_order(db: Session, order_id: int) -> Order:
     return result.scalar()
 
 
-async def get_customer_by_phone_number_and_trade_point(
-        db: Session,
-        phone_number: str,
-        trade_point_id: int) -> Customer:
-    # Поиск клиента по номеру телефона
-    stmt = select(Customer).where(
-        Customer.phone_number == phone_number,
-        Customer.trade_point_id == trade_point_id)
-    result = await db.execute(stmt)
-    customer = result.scalar_one_or_none()
-
-    if not customer:
-        raise HTTPException(status_code=404, detail="Customer not found")
-
-    return customer
-
-# async def get_trade_point(db: Session, trade_point_id: int, customer_id: int) -> TradePoint:
-#     # Поиск торговой точки по ID и проверка, что она принадлежит данному клиенту
-#     stmt = select(Customer).where(
-#         TradePoint.id == trade_point_id,
-#         TradePoint.customer_id == customer_id
-#     )
-#     result = await db.execute(stmt)
-#     trade_point = result.scalar_one_or_none()
-
-#     if not trade_point:
-#         raise HTTPException(status_code=400, detail="Trade point not found or does not belong to the customer")
-
-#     return trade_point

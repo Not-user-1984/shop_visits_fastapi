@@ -2,6 +2,8 @@ from pydantic import BaseModel
 from typing import List
 from enum import Enum
 import datetime
+from typing import Optional
+
 
 # Схема для создания заказа
 class OrderCreate(BaseModel):
@@ -15,9 +17,8 @@ class OrderResponse(BaseModel):
     where_id: int
     author_id: int
     status: Enum
+    executor_id: Optional[int]
     created_at: datetime.datetime
-
-
 
 
 # Схема для ответа с информацией о клиенте
