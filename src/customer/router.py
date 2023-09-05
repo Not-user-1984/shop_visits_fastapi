@@ -22,7 +22,7 @@ async def read_customers(
 
 
 # Создать нового заказчика
-@router.post("/customers/")
+@router.post("/customer/")
 async def create_customer(
     customer: schemas.CustomerCreate,
     db: AsyncSession = Depends(get_async_session)
@@ -30,18 +30,15 @@ async def create_customer(
     return await crud.create_customer(db, customer)
 
 
-# Получить заказчика по ID
-@router.get("/customers/{customer_id}")
+# Получить заказчика по phone_number
+@router.get("/customers/{phone_number}",
+            response_model=schemas.CustomerResponse)
 async def read_customer(
-    customer_id: int,
+    customer_id: str,
     db: AsyncSession = Depends(get_async_session)
 ):
-    query = select(Customer).where(Customer.id == customer_id)
-    result = await db.execute(query)
-    customer = result.scalar_one_or_none()
-    if not customer:
-        raise HTTPException(status_code=404, detail="Customer not found")
-    return customer
+    return await crud.get_customer(db, customer_id)
+
 
 
 # Обновить информацию о заказчике

@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from customer import schemas
 from db.models import Customer
 
-# Создать нового заказчика
+
 async def create_customer(
         db: Session,
         customer: schemas.CustomerCreate):
@@ -14,11 +14,11 @@ async def create_customer(
     return db_customer
 
 
-# Получить заказчика по ID
-async def get_customer(db: Session, customer_id: int):
-    query = select(Customer).where(Customer.id == customer_id)
+# Получить заказчика по phone_number
+async def get_customer(db: Session, phone_number: str):
+    query = select(Customer).where(Customer.phone_number== phone_number)
     result = await db.execute(query)
-    return result.fetchone()
+    return result.scalar_one_or_none()
 
 
 # Получить список всех заказчиков

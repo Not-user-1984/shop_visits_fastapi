@@ -1,9 +1,8 @@
 import datetime
-from enum import Enum
-from typing import List
-from typing import Optional
-from pydantic import BaseModel
 
+from typing import List
+
+from pydantic import BaseModel
 
 
 class WorkerBase(BaseModel):
@@ -21,28 +20,12 @@ class WorkerUpdate(WorkerBase):
 
 
 class WorkerResponse(WorkerBase):
-    pass
+    id: int
 
 
 class WorkerListResponse(BaseModel):
     workers: List[WorkerResponse]
 
 
-class OrderResponse(BaseModel):
-    id: int
-    where_id: int
-    author_id: int
-    status: Enum
-    created_at: datetime.datetime
-    ended_at: datetime.datetime
-
-
-class OrderWorkerResponse(BaseModel):
-    id: int
-    where_id: int
-    author_id: int
-    status: str
-    executor_id: int
-    created_at: datetime.datetime
-    ended_at: datetime.datetime
-    executor_id: Optional[int]
+class WorkerPhoneNumber(BaseModel):
+    phone_number: str

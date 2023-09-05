@@ -4,3 +4,4 @@ fastapi[all]
 python-dotenv
 sqlalchemy
 flask-admin
+Flask_sqlalchemy

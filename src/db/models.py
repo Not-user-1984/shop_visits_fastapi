@@ -1,6 +1,8 @@
 import datetime
 from enum import Enum as PyEnum
-from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, String
+
+from sqlalchemy import (Boolean, Column, DateTime, Enum, ForeignKey, Integer,
+                        String, Table)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
@@ -22,14 +24,6 @@ class TradePoint(Base):
     name = Column(String(255), nullable=False)
 
 
-class Admin(Base):
-    __tablename__ = 'admins'
-
-    id = Column(Integer, primary_key=True)
-    username = Column(String(255), nullable=False, unique=True)
-    password_hash = Column(String(255), nullable=False)
-
-
 class Worker(Base):
     __tablename__ = 'workers'
 
@@ -38,8 +32,19 @@ class Worker(Base):
     phone_number = Column(String(255), nullable=False)
     trade_point_id = Column(
         Integer, ForeignKey('trade_points.id'), nullable=False)
+    is_blocked = Column(Boolean, default=False)
     visits = relationship("Visit", backref="executor", lazy=True)
     orders = relationship("Order", backref="author", lazy=True)
+
+    def __str__(self):
+        return str(self.name)
+
+
+customer_trade_points = Table(
+    'customer_trade_points', Base.metadata,
+    Column('customer_id', Integer, ForeignKey('customers.id')),
+    Column('trade_point_id', Integer, ForeignKey('trade_points.id'))
+)
 
 
 class Customer(Base):
@@ -48,11 +53,16 @@ class Customer(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(255), nullable=False)
     phone_number = Column(String(255), nullable=False)
-    trade_point_id = Column(
-        Integer, ForeignKey('trade_points.id'),
-        nullable=False)
     customer_orders = relationship("Order", backref="customer", lazy=True)
     visits = relationship("Visit", backref="customer", lazy=True)
+    trade_points = relationship(
+        "TradePoint",
+        secondary=customer_trade_points,
+        backref="customers"
+    )
+
+    def __str__(self):
+        return str(self.name)
 
 
 class Order(Base):
@@ -67,6 +77,9 @@ class Order(Base):
     executor_id = Column(Integer, ForeignKey('workers.id'))
     visits = relationship("Visit", backref="order", uselist=False, lazy=True)
 
+    def __str__(self):
+        return str(self.created_at)
+
 
 class Visit(Base):
     __tablename__ = 'visits'
@@ -77,3 +90,6 @@ class Visit(Base):
     order_id = Column(Integer, ForeignKey('orders.id'), nullable=False)
     author_id = Column(Integer, ForeignKey('customers.id'), nullable=False)
     where_id = Column(Integer, ForeignKey('trade_points.id'), nullable=False)
+
+    def __str__(self):
+        return str(self.created_at)
