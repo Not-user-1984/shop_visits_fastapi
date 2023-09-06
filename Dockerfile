@@ -10,9 +10,7 @@ RUN pip install -r requirements.txt
 
 COPY . .
 
-# RUN alembic upgrade head
-
-
+RUN chmod +x /shop_visits_fastapi/docker_shop_visit/app.sh
 
 WORKDIR src
 
