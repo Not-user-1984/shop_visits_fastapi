@@ -16,7 +16,7 @@ async def create_customer(
 
 # Получить заказчика по phone_number
 async def get_customer(db: Session, phone_number: str):
-    query = select(Customer).where(Customer.phone_number== phone_number)
+    query = select(Customer).where(Customer.phone_number == phone_number)
     result = await db.execute(query)
     return result.scalar_one_or_none()
 

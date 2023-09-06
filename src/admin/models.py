@@ -51,8 +51,6 @@ class OrderAdmin(ModelView, model=Order):
         Order.visits
     ]
     column_searchable_list = [Order.created_at]
-    
-
 
 
 class VisitAdmin(ModelView, model=Visit):
@@ -64,8 +62,3 @@ class VisitAdmin(ModelView, model=Visit):
         Visit.author_id,
         Visit.where_id
     ]
-
-
-
-
-

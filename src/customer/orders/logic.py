@@ -1,4 +1,3 @@
-import datetime
 from datetime import datetime, timedelta
 from typing import List
 
@@ -6,7 +5,7 @@ from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
-from customer.orders import schemas, validation
+from customer.orders import schemas
 from db.models import Customer, Order, Visit, Worker
 
 
@@ -82,11 +81,11 @@ async def delete_order(
         db: AsyncSession,
         phone_number: int,
         order_id: int) -> bool:
-    # Проверяем, существует ли клиент с заданным customer_id
+
     customer = await get_customer_by_phone(db, phone_number)
     if not customer:
         raise HTTPException(status_code=404, detail="Customer not found")
-    # Проверяем, существует ли заказ с заданным order_id
+
     order = await get_order(db, order_id)
     if not order or order.author_id != customer.id:
         raise HTTPException(status_code=404, detail="Order not found")
@@ -148,4 +147,3 @@ async def get_customer_by_phone(
     result = await db.execute(stmt)
     customer = result.scalar_one_or_none()
     return customer
-
