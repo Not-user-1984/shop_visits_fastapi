@@ -7,6 +7,7 @@ from sqlalchemy.future import select
 
 from customer.orders import schemas
 from db.models import Customer, Order, Visit, Worker
+from ..utilits import get_customer
 
 
 # Функция для создания заказа клиентом
@@ -82,14 +83,14 @@ async def delete_order(
         phone_number: int,
         order_id: int) -> bool:
 
-    customer = await get_customer_by_phone(db, phone_number)
+    customer = await get_customer(db, phone_number)
     if not customer:
         raise HTTPException(status_code=404, detail="Customer not found")
 
     order = await get_order(db, order_id)
     if not order or order.author_id != customer.id:
         raise HTTPException(status_code=404, detail="Order not found")
-    if await get_order_status(db, order_id):
+    if await get_order_status_started(db, order_id):
             await db.delete(order)
             await db.commit()
             return True
@@ -98,29 +99,14 @@ async def delete_order(
         detail="Only completed orders can be deleted")
 
 
-# Функция для получения всех заказов клиента
 async def get_customer_orders(
         db: AsyncSession, customer_id: int) -> List[Order]:
-    # Проверяем, существует ли клиент с заданным customer_id
-    customer = await get_customer(db, customer_id)
-    if not customer:
-        raise ValueError("Customer not found")
-
-    # Получаем все заказы, созданные этим клиентом
     stmt = select(Order).where(Order.author_id == customer_id)
     result = await db.execute(stmt)
     orders = result.scalars().all()
     return orders
 
 
-# Функция для получения клиента по ID
-async def get_customer(db: AsyncSession, customer_id: int) -> Customer:
-    stmt = select(Customer).where(Customer.id == customer_id)
-    result = await db.execute(stmt)
-    return result.scalar()
-
-
-# Функция для получения заказа по ID
 async def get_order(db: AsyncSession, order_id: int) -> Order:
     stmt = select(Order).where(
         Order.id == order_id,
@@ -129,21 +115,8 @@ async def get_order(db: AsyncSession, order_id: int) -> Order:
     return result.scalar()
 
 
-# Функция для получения статуса заказа по ID
-async def get_order_status(db: AsyncSession, order_id: int) -> Order:
+async def get_order_status_started(db: AsyncSession, order_id: int) -> Order:
     stmt = select(Order).where(
         Order.status == "started")
     result = await db.execute(stmt)
     return result.scalar()
-
-
-# Поиск клиента по номеру телефона
-async def get_customer_by_phone(
-        db: AsyncSession,
-        phone_number: str,) -> Customer:
-    stmt = select(Customer).where(
-        Customer.phone_number == phone_number,
-    )
-    result = await db.execute(stmt)
-    customer = result.scalar_one_or_none()
-    return customer

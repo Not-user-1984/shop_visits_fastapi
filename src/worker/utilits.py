@@ -1,6 +1,8 @@
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+
+from db.models import Worker
 from fastapi import HTTPException
-from worker.orders import logic
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 async def validate_phone_number(phone_number: str, db: AsyncSession):
@@ -13,8 +15,15 @@ async def validate_phone_number(phone_number: str, db: AsyncSession):
             status_code=400,
             detail="Invalid phone number length")
     # Проверяем уникальность номера телефона в базе данных
-    existing_worker = await logic.get_worker_by_phone_number(db, cleaned_phone_number)
+    existing_worker = await get_worker_by_phone_number(
+        db, cleaned_phone_number)
     if existing_worker:
         raise HTTPException(status_code=400, detail="Phone number already exists")
 
     return cleaned_phone_number
+
+
+async def get_worker_by_phone_number(db: AsyncSession, phone_number: str):
+    stmt = select(Worker).where(Worker.phone_number == phone_number)
+    result = await db.execute(stmt)
+    return result.scalar_one_or_none()

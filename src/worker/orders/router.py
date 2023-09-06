@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
-from db.database import get_async_session
 
+from fastapi import APIRouter, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from db.database import get_async_session
 from worker.orders import logic, schemas
 
 router = APIRouter()
@@ -16,7 +17,6 @@ async def get_worker_orders(
     db: AsyncSession = Depends(get_async_session)
 ):
     orders = await logic.get_tradepoint_orders(db, phone_number)
-
     return orders
 
 

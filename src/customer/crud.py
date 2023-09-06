@@ -1,51 +1,61 @@
+from fastapi import HTTPException
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from customer import schemas
 from db.models import Customer
 
+from customer.utilits import check_customer_existence, get_customer
 
+
+# Создать нового заказчика
 async def create_customer(
-        db: Session,
-        customer: schemas.CustomerCreate):
-    db_customer = Customer(**customer.dict())
+        db: AsyncSession,
+        customer: schemas.CustomerCreate,
+        cleaned_phone_number: str):
+
+    await check_customer_existence(db, cleaned_phone_number)
+
+    db_customer = Customer(
+        name=customer.name,
+        phone_number=cleaned_phone_number,
+    )
     db.add(db_customer)
     await db.commit()
     await db.refresh(db_customer)
     return db_customer
 
 
-# Получить заказчика по phone_number
-async def get_customer(db: Session, phone_number: str):
-    query = select(Customer).where(Customer.phone_number == phone_number)
-    result = await db.execute(query)
-    return result.scalar_one_or_none()
-
-
 # Получить список всех заказчиков
-async def get_customers(db: Session, skip: int = 0, limit: int = 100):
+async def get_customers(db: AsyncSession, skip: int = 0, limit: int = 100):
     query = select(Customer).offset(skip).limit(limit)
     return await db.execute(query)
 
 
 # Обновить информацию о заказчике
 async def update_customer(
-        db: Session,
-        customer_id: int,
+        db: AsyncSession,
+        phone_number: str,
         customer: schemas.CustomerUpdate
         ):
-    db_customer = await db.get(Customer, customer_id)
+    await check_customer_existence(db, customer.phone_number)
+    db_customer = await get_customer(db, phone_number)
     if db_customer:
         for key, value in customer.dict().items():
             setattr(db_customer, key, value)
         await db.commit()
         await db.refresh(db_customer)
+    else:
+        raise HTTPException(status_code=404, detail="Customer not found")
     return db_customer
 
 
 # Удалить заказчика
-async def delete_customer(db: Session, customer_id: int):
-    db_customer = await db.get(Customer, customer_id)
+async def delete_customer(db: AsyncSession, phone_number: str):
+    db_customer = await get_customer(db, phone_number)
     if db_customer:
         await db.delete(db_customer)
         await db.commit()
-        return db_customer
+        return HTTPException(
+            status_code=200, detail="Customer deleted successfully")
+    raise HTTPException(status_code=404, detail="Customer not found")

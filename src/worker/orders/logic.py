@@ -1,13 +1,12 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from worker import schemas
-from typing import List
 
+from typing import List
+from worker import utilits
 from db.models import Worker, Order
 from fastapi import HTTPException
 
 
-# Функция для поиска заказов через связь TradePoint
 async def get_tradepoint_orders(
         db: AsyncSession, phone_number: str) -> List[Order]:
 
@@ -39,7 +38,7 @@ async def assign_order_to_worker(
     order_id: int
 ):
     # Находим работника по номеру телефона
-    worker = await get_worker_by_phone_number(db, phone_number)
+    worker = await utilits.get_worker_by_phone_number(db, phone_number)
     if not worker:
         raise HTTPException(status_code=404, detail="Worker not found")
 
@@ -68,14 +67,7 @@ async def assign_order_to_worker(
     return order
 
 
-async def get_worker_by_phone_number(db: AsyncSession, phone_number: str):
-    stmt = select(Worker).where(Worker.phone_number == phone_number)
-    result = await db.execute(stmt)
-    return result.scalar_one_or_none()
-
-
 async def get_order_by_id(db: AsyncSession, order_id: int):
     stmt = select(Order).where(Order.id == order_id)
     result = await db.execute(stmt)
     return result.scalar_one_or_none()
-

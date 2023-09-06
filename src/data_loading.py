@@ -9,26 +9,26 @@ from db.database import Base
 from db.models import Customer, Order, OrderStatus, TradePoint, Worker
 
 
-def create_random_worker(i):
+def create_random_worker():
     return Worker(
-        id=i,
+
         name=f"Worker-{random.randint(1, 1000)}",
-        phone_number=f"+7{random.randint(100, 999)}-{random.randint(100, 999)}-{random.randint(1000, 9999)}",
+        phone_number=f"7{random.randint(100, 999)}{random.randint(100, 999)}{random.randint(1000, 9999)}",
         trade_point_id=random.randint(1, 10),
         is_blocked=random.choice([True, False])
     )
 
 
-def create_random_customer(i):
+def create_random_customer():
     return Customer(
-        id=i,
         name=f"Customer-{random.randint(1, 1000)}",
-        phone_number=f"+7{random.randint(100, 999)}-{random.randint(100, 999)}-{random.randint(1000, 9999)}"
+        phone_number=f"+7{random.randint(100, 999)}{random.randint(100, 999)}{random.randint(1000, 9999)}"
     )
 
-def create_random_order(i):
+
+def create_random_order():
     return Order(
-        id=i,
+
         created_at=datetime.datetime.utcnow(),
         ended_at=(datetime.datetime.utcnow()+ datetime.timedelta(days=random.randint(1, 30))),
         where_id=random.randint(1, 10),
@@ -44,21 +44,21 @@ def main():
     session = Session()
     try:
         for i in range(1, 31):
-            trade_point = TradePoint(name=f"TradePoint-{i}", id=i)
+            trade_point = TradePoint(name=f"TradePoint-{i}")
             session.add(trade_point)
         session.commit()
-        for i in range(1, 201):
-            worker = create_random_worker(i)
+        for _ in range(1, 201):
+            worker = create_random_worker()
             session.add(worker)
             session.commit()
 
-        for i in range(1, 201):
-            customer = create_random_customer(i)
+        for _ in range(1, 201):
+            customer = create_random_customer()
             session.add(customer)
             session.commit()
 
-        for i in range(1, 151):
-            order = create_random_order(i)
+        for _ in range(1, 151):
+            order = create_random_order()
             session.add(order)
             session.commit()
         print("Записи успешно созданы!")

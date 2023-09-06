@@ -1,20 +1,18 @@
-from typing import List
-
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from db.database import get_async_session
-from worker import crud, schemas ,utils
+from worker import utilits
+from worker import crud, schemas
 
 router = APIRouter()
 
 
-# создать работника
 @router.post("/workers/",
              response_model=schemas.WorkerResponse)
 async def create_worker(worker: schemas.WorkerCreate,
                         db: AsyncSession = Depends(get_async_session)):
-    cleaned_phone_number = await utils.validate_phone_number(
+    cleaned_phone_number = await utilits.validate_phone_number(
         worker.phone_number, db)
     return await crud.create_worker(db, worker, cleaned_phone_number)
 
@@ -56,8 +54,11 @@ async def update_worker(
 
 
 @router.delete("/workers/{worker_id}",
-            response_model=schemas.WorkerResponse)
-async def delete_worker(worker_id: int, db: AsyncSession = Depends(get_async_session)):
+               response_model=schemas.WorkerResponse)
+async def delete_worker(
+    worker_id: int,
+    db: AsyncSession = Depends(get_async_session)
+):
     db_worker = await crud.delete_worker(db, worker_id)
     if db_worker is None:
         raise HTTPException(status_code=404, detail="Worker not found")

@@ -6,7 +6,8 @@ from db.models import Order
 
 async def order_exists(
         db: Session,
-        order_data: dict , customer_id: int
+        order_data: dict,
+        customer_id: int
 ) -> bool:
     stmt = select(Order).where(
         Order.author_id == customer_id,

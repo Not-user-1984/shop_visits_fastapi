@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from customer.orders import logic, validation
+from customer.orders import logic, schemas, validation
 from db.database import get_async_session
 
-from . import logic, schemas
+from customer.utilits import get_customer
 
 router = APIRouter()
 
@@ -16,7 +16,7 @@ async def create_order(
     db: AsyncSession = Depends(get_async_session)
 ):
     # Поиск клиента по номеру телефона
-    customer = await logic.get_customer_by_phone(db, order_data.phone_number)
+    customer = await get_customer(db, order_data.phone_number)
     if not customer:
         raise HTTPException(status_code=404, detail="Customer not found")
 
@@ -50,19 +50,19 @@ async def delete_order(
         await logic.delete_order(db, order_data.phone_number, order_id)
         return {"message": "Order deleted successfully"}
     except HTTPException as e:
-        # Здесь можно добавить логирование ошибки, если необходимо
         raise e
 
 
 # Получить все заказы клиента
-@router.get("/customers/{customer_id}/orders/",
+@router.get("/customers/orders/{phone_number}",
             response_model=schemas.CustomerOrdersResponse)
 async def get_customer_orders(
-    customer_id: int, db: AsyncSession = Depends(get_async_session)
+    phone_number: str,
+    db: AsyncSession = Depends(get_async_session)
 ):
-    customer = await logic.get_customer(db, customer_id)
+    customer = await get_customer(db, phone_number)
     if not customer:
         raise HTTPException(status_code=404, detail="Customer not found")
 
-    orders = await logic.get_customer_orders(db, customer_id)
+    orders = await logic.get_customer_orders(db, customer.id)
     return {"customer": customer, "orders": orders}

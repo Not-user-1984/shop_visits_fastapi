@@ -7,6 +7,8 @@ class TradePointAdmin(ModelView, model=TradePoint):
         TradePoint.id,
         TradePoint.name
     ]
+    column_searchable_list = [TradePoint.id, TradePoint.name]
+    column_sortable_list = [TradePoint.id]
 
 
 class WorkerAdmin(ModelView, model=Worker):
@@ -22,6 +24,7 @@ class WorkerAdmin(ModelView, model=Worker):
         Worker.visits,
     ]
     column_searchable_list = [Worker.name, Worker.phone_number]
+    column_sortable_list = [Worker.id]
 
 
 class CustomerAdmin(ModelView, model=Customer):
@@ -40,6 +43,7 @@ class CustomerAdmin(ModelView, model=Customer):
         Customer.visits,
         Customer.trade_points
     ]
+    column_sortable_list = [Customer.id]
 
 
 class OrderAdmin(ModelView, model=Order):
@@ -50,7 +54,8 @@ class OrderAdmin(ModelView, model=Order):
         Order.status,
         Order.visits
     ]
-    column_searchable_list = [Order.created_at]
+    column_searchable_list = [Order.created_at, Order.id]
+    column_sortable_list = [Worker.id, Order.created_at]
 
 
 class VisitAdmin(ModelView, model=Visit):
@@ -62,3 +67,6 @@ class VisitAdmin(ModelView, model=Visit):
         Visit.author_id,
         Visit.where_id
     ]
+    column_searchable_list = [Visit.created_at, Visit.id]
+    column_sortable_list = [Visit.id, Visit.created_at]
+

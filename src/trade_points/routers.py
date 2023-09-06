@@ -1,14 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from db.database import get_async_session
-from .crud import (
-    create_trade_point,
-    get_trade_point,
-    get_trade_points,
-    update_trade_point,
-    delete_trade_point,
-    update_order_status,
-)
+
+from trade_points import crud
 from . import schemas
 
 router = APIRouter()
@@ -18,9 +13,9 @@ router = APIRouter()
 @router.post("/trade_points/", response_model=schemas.TradePoint)
 async def create_trade_point_endpoint(
     trade_point: schemas.TradePointCreate,
-    db: Session = Depends(get_async_session)
+    db: AsyncSession = Depends(get_async_session)
 ):
-    return await create_trade_point(db, trade_point)
+    return await crud.create_trade_point(db, trade_point)
 
 
 # Получить торговую точку по ID
@@ -28,9 +23,9 @@ async def create_trade_point_endpoint(
             response_model=schemas.TradePoint)
 async def read_trade_point_endpoint(
     trade_point_id: int,
-    db: Session = Depends(get_async_session)
+    db: AsyncSession = Depends(get_async_session)
 ):
-    trade_point = await get_trade_point(db, trade_point_id)
+    trade_point = await crud.get_trade_point(db, trade_point_id)
     if not trade_point:
         raise HTTPException(status_code=404, detail="Trade Point not found")
     return trade_point
@@ -39,9 +34,9 @@ async def read_trade_point_endpoint(
 # Получить список всех торговых точек
 @router.get("/trade_points/", response_model=list[schemas.TradePoint])
 async def read_trade_points_endpoint(
-    db: Session = Depends(get_async_session)
+    db: AsyncSession = Depends(get_async_session)
 ):
-    return await get_trade_points(db)
+    return await crud.get_trade_points(db)
 
 
 # Обновить информацию о торговой точке
@@ -50,9 +45,9 @@ async def read_trade_points_endpoint(
 async def update_trade_point_endpoint(
     trade_point_id: int,
     trade_point_data: schemas.TradePointUpdate,
-    db: Session = Depends(get_async_session)
+    db: AsyncSession = Depends(get_async_session)
 ):
-    trade_point = await update_trade_point(
+    trade_point = await crud.update_trade_point(
         db,
         trade_point_id,
         trade_point_data)
@@ -66,9 +61,9 @@ async def update_trade_point_endpoint(
                response_model=schemas.TradePoint)
 async def delete_trade_point_endpoint(
     trade_point_id: int,
-    db: Session = Depends(get_async_session)
+    db: AsyncSession = Depends(get_async_session)
 ):
-    trade_point = await delete_trade_point(db, trade_point_id)
+    trade_point = await crud.delete_trade_point(db, trade_point_id)
     if not trade_point:
         raise HTTPException(status_code=404, detail="Trade Point not found")
     return trade_point

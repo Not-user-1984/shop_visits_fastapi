@@ -10,6 +10,5 @@ class CustomerResponse(CustomerCreate):
     id: int
 
 
-
 class CustomerUpdate(CustomerCreate):
     pass

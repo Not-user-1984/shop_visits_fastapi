@@ -1,10 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from customer import crud, schemas
 from db.models import Customer
 from db.database import get_async_session
-
+from customer import utilits
 router = APIRouter()
 
 
@@ -27,7 +27,9 @@ async def create_customer(
     customer: schemas.CustomerCreate,
     db: AsyncSession = Depends(get_async_session)
 ):
-    return await crud.create_customer(db, customer)
+    cleaned_phone_number = await utilits.validate_phone_number(
+       customer.phone_number, db)
+    return await crud.create_customer(db, customer, cleaned_phone_number)
 
 
 # Получить заказчика по phone_number
@@ -40,26 +42,21 @@ async def read_customer(
     return await crud.get_customer(db, customer_id)
 
 
-
 # Обновить информацию о заказчике
-@router.put("/customers/{customer_id}", response_model=schemas.CustomerUpdate)
+@router.put("/customers/{phone_number}",
+            response_model=schemas.CustomerUpdate)
 async def update_customer(
-    customer_id: int,
+    phone_number: str,
     customer: schemas.CustomerUpdate,
     db: AsyncSession = Depends(get_async_session)
 ):
-    updated_customer = await crud.update_customer(db, customer_id, customer)
-    if updated_customer:
-        return updated_customer
-    raise HTTPException(status_code=404, detail="Customer not found")
+    return await crud.update_customer(db, phone_number, customer)
 
 
-@router.delete("/customers/{customer_id}")
+# удалить заказчика
+@router.delete("/customers/{phone_number}")
 async def delete_customer(
-    customer_id: int,
+    phone_number: str,
     db: AsyncSession = Depends(get_async_session)
 ):
-    deleted_customer = await crud.delete_customer(db, customer_id)
-    if not deleted_customer:
-        raise HTTPException(status_code=404, detail="Customer not found")
-    return {"message": "Customer deleted successfully"}
+    return await crud.delete_customer(db, phone_number)
